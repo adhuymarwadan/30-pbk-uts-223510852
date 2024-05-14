@@ -1,5 +1,7 @@
 @import './base.css';
-
+body {
+  background-image: url(/src/assets/OIPPp.jpeg);
+}
 #app {
   max-width: 1280px;
   margin: 0 auto;
