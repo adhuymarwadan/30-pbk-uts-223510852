@@ -43,30 +43,17 @@
     </div>
   </div>
 
-  <div class="profile" v-if="page === 'post'">
-    <h1>Postingan Pengguna</h1>
-    <div class="pengguna">
-      <label for="users">Pilih Pengguna:</label>
-      <select id="users" v-model="selectedUserId" @change="loadUserPosts">
-        <option v-for="user in users" :key="user.id" :value="user.id">{{ user.name }}</option>
-      </select>
-    </div>
-    <div class="user-posts">
-      <div v-if="loading">Loading...</div>
-      <div v-else>
-        <div v-for="post in userPosts" :key="post.id">
-          <h2>{{ post.title }}</h2>
-          <p>{{ post.body }}</p>
-        </div>
-      </div>
-    </div>
-  </div>
+  <UserPosts v-if="page === 'post'" :users="users" />
 </template>
 
 <script>
 import axios from 'axios'
+import UserPosts from './components/UserPosts.vue'
 
 export default {
+  components: {
+    UserPosts
+  },
   data() {
     return {
       page: 'home',
@@ -117,20 +104,6 @@ export default {
         })
         .catch((error) => {
           console.error('Error fetching users:', error)
-        })
-    },
-    loadUserPosts() {
-      if (!this.selectedUserId) return
-      this.loading = true
-      axios
-        .get(`https://jsonplaceholder.typicode.com/posts?userId=${this.selectedUserId}`)
-        .then((response) => {
-          this.userPosts = response.data
-          this.loading = false
-        })
-        .catch((error) => {
-          console.error('Error fetching user posts:', error)
-          this.loading = false
         })
     }
   },
