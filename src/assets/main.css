@@ -1,6 +1,6 @@
 @import './base.css';
 body {
-  background-image: url(/src/assets/OIPPp.jpeg);
+  background-image: url(https://th.bing.com/th/id/OIP.sHxjYZXHiJrd7L58fhzWOQHaEo?w=1680&h=1050&rs=1&pid=ImgDetMain);
 }
 #app {
   max-width: 1280px;

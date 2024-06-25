@@ -7,48 +7,70 @@
       <ul class="navbarpost">
         <li @click="page = 'post'">Post</li>
       </ul>
+      <ul class="navbargaleri">
+        <li @click="page = 'gallery'">Gallery</li>
+      </ul>
     </nav>
-  </div>
-  <div class="background-photo">
-    <h1>Welcome</h1>
-    <p>This is a simple project that I made, please guide😊</p>
-  </div>
-  <div class="user-crud" v-if="page === 'home'">
-    <h2>User List</h2>
-    <ul class="user-list">
-      <li v-for="(user, index) in users" :key="index" class="user-item">
-        <div class="user-info">
-          <input type="checkbox" v-model="user.selected" class="edit-checkbox" />
-          <span class="user-name">{{ user.name }}</span> -
-          <span class="user-email">{{ user.email }}</span>
-        </div>
-        <div class="user-actions">
-          <button @click="editUser(index)" class="action-btn">Edit</button>
-          <button @click="deleteUser(index)" class="action-btnn">Delete</button>
-        </div>
-      </li>
-    </ul>
 
-    <h2>{{ editing ? 'Edit User' : 'Add User' }}</h2>
-    <div class="form">
-      <input type="text" v-model="user.name" placeholder="Name" class="input-field" />
-      <input type="email" v-model="user.email" placeholder="Email" class="input-field" />
-      <button
-        @click="editing ? saveUser() : addUser()"
-        :disabled="!isInputValid"
-        class="action-btn"
-      >
-        {{ editing ? 'Save User' : 'Add User' }}
-      </button>
+    <div class="background-photo">
+      <h1>Welcome</h1>
+      <p>This is a simple project that I made, please guide😊</p>
+    </div>
+
+    <div v-if="page === 'home'">
+      <div class="user-crud">
+        <h2>User List</h2>
+        <ul class="user-list">
+          <li v-for="(user, index) in users" :key="index" class="user-item">
+            <div class="user-info">
+              <input type="checkbox" v-model="user.selected" class="edit-checkbox" />
+              <span class="user-name">{{ user.name }}</span> -
+              <span class="user-email">{{ user.email }}</span>
+            </div>
+            <div class="user-actions">
+              <button @click="editUser(index)" class="action-btn">Edit</button>
+              <button @click="deleteUser(index)" class="action-btnn">Delete</button>
+            </div>
+          </li>
+        </ul>
+
+        <h2>{{ editing ? 'Edit User' : 'Add User' }}</h2>
+        <div class="form">
+          <input type="text" v-model="user.name" placeholder="Name" class="input-field" />
+          <input type="email" v-model="user.email" placeholder="Email" class="input-field" />
+          <button
+            @click="editing ? saveUser() : addUser()"
+            :disabled="!isInputValid"
+            class="action-btn"
+          >
+            {{ editing ? 'Save User' : 'Add User' }}
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <div v-else-if="page === 'post'">
+      <UserPosts :users="users" />
+    </div>
+
+    <div v-else-if="page === 'gallery'">
+      <div>
+        <h2>Gallery</h2>
+        <div class="gallery">
+          <div v-for="photo in photos" :key="photo.id" class="gallery-item">
+            <img :src="photo.thumbnailUrl" :alt="photo.title" @click="showPhoto(photo.url)" />
+            <p>{{ photo.title }}</p>
+          </div>
+        </div>
+      </div>
     </div>
   </div>
-
-  <UserPosts v-if="page === 'post'" :users="users" />
 </template>
 
 <script>
 import axios from 'axios'
 import UserPosts from './components/UserPosts.vue'
+import { useGalleryStore } from './stores/counter.ts'
 
 export default {
   components: {
@@ -62,7 +84,8 @@ export default {
       editing: false,
       selectedUserId: null,
       userPosts: [],
-      loading: false
+      loading: false,
+      photos: []
     }
   },
   computed: {
@@ -105,10 +128,17 @@ export default {
         .catch((error) => {
           console.error('Error fetching users:', error)
         })
+    },
+    showPhoto(url) {
+      window.open(url, '_blank')
     }
   },
   mounted() {
     this.fetchUsers()
+    const galleryStore = useGalleryStore()
+    galleryStore.fetchPhotos().then(() => {
+      this.photos = galleryStore.photos
+    })
   }
 }
 </script>
@@ -195,7 +225,9 @@ export default {
   border-radius: 5px;
 }
 
-.navbarhome {
+.navbarhome,
+.navbarpost,
+.navbargaleri {
   background-color: rgba(225, 225, 225, 0.4);
   padding: 20px;
   margin: 20px;
@@ -205,39 +237,43 @@ export default {
   font-weight: bold;
   text-transform: uppercase;
   cursor: pointer;
-  transition: o.3s;
+  transition: 0.3s;
 }
 
-.navbarhome :hover {
+.navbarhome:hover,
+.navbarpost:hover,
+.navbargaleri:hover {
   background-color: #666;
   border-radius: 20px;
   transition-duration: 1.5s;
-  transform: translate(-50%, -50%) scale(1.2);
+  transform: translate(-3%, -3%) scale(1.2);
 }
-.navbarpost {
-  background-color: rgba(225, 225, 225, 0.4);
-  padding: 20px;
-  margin: 20px;
+
+.gallery {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  grid-gap: 10px;
+}
+
+.gallery-item {
   display: flex;
-  border-radius: 20px;
-  list-style-type: none;
-  font-weight: bold;
-  text-transform: uppercase;
-  cursor: pointer;
-  transition: o.3s;
-  font: bold;
-  background-color: rgba(225, 225, 225, 0.4);
+  flex-direction: column;
+  align-items: center;
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  background-color: #f9f9f9;
 }
 
-.navbarpost :hover {
-  background-color: #666;
-  border-radius: 20px;
-  transition-duration: 1.5s;
-  transform: translate(-50%, -50%) scale(1.2);
+.gallery-item img {
+  width: 100%;
+  height: 150px;
+  object-fit: cover;
+  border-radius: 8px 8px 0 0;
 }
 
-.perngguna {
-  background-color: #666;
-  width: 50px;
+.gallery-item p {
+  font-size: 16px;
+  margin-top: 10px;
 }
 </style>
